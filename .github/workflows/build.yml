@@ -21,39 +21,23 @@ jobs:
 
     - name: Install Android SDK
       run: |
-        echo "Installing Android SDK..."
         sudo apt-get update -qq
         sudo apt-get install -y -qq unzip wget
         mkdir -p /opt/android-sdk/cmdline-tools
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip
-        echo "Downloaded: $(ls -la /tmp/cmdline-tools.zip)"
         unzip -q /tmp/cmdline-tools.zip -d /tmp/cmdline-tools
         mv /tmp/cmdline-tools/cmdline-tools /opt/android-sdk/cmdline-tools/latest
         export ANDROID_HOME=/opt/android-sdk
-        export PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin
+        echo "ANDROID_HOME=/opt/android-sdk" >> $GITHUB_ENV
+        echo "PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_ENV
         yes | sdkmanager --licenses > /dev/null
         sdkmanager 'platforms;android-34' 'build-tools;34.0.0'
-        echo "SDK installed:"
-        ls -la /opt/android-sdk/build-tools/
-        ls -la /opt/android-sdk/platforms/
-
-    - name: Download gradlew
-      run: |
-        curl -s https://raw.githubusercontent.com/gradle/gradle/v8.2.0/gradle/wrapper/gradle-wrapper.sh -o gradlew
-        chmod +x gradlew
-        ls -la gradlew
-        wc -c gradlew
 
     - name: Build Debug APK
       run: |
         export ANDROID_HOME=/opt/android-sdk
         export PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin
-        ./gradlew assembleDebug --stacktrace --no-daemon --info
-
-    - name: Check APK
-      run: |
-        ls -la app/build/outputs/apk/debug/ 2>&1 || true
-        find . -name "*.apk" -type f 2>&1 || true
+        gradle assembleDebug --stacktrace --no-daemon --info
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
