@@ -18,23 +18,23 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
 
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-      with:
-        api-level: 34
-        build-tools: '34.0.0'
-        ndk: '25.2.9519653'
-        cmake: '3.22.1'
+    - name: Install Android SDK
+      run: |
+        mkdir -p /opt/android-sdk/cmdline-tools
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip
+        unzip -q /tmp/cmdline-tools.zip -d /tmp/cmdline-tools
+        mv /tmp/cmdline-tools/cmdline-tools /opt/android-sdk/cmdline-tools/latest
+        export ANDROID_HOME=/opt/android-sdk
+        echo 'ANDROID_HOME=/opt/android-sdk' >> $GITHUB_ENV
+        echo 'PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin' >> $GITHUB_ENV
+        yes | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null
+        /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager 'platforms;android-34' 'build-tools;34.0.0'
 
     - name: Build Debug APK
-      run: gradle assembleDebug --stacktrace --info
-
-    - name: Check APK exists
       run: |
-        ls -la app/build/outputs/apk/debug/ 2>&1 || echo 'no apk dir'
-        find . -name '*.apk' 2>&1 || echo 'no apk found'
+        export ANDROID_HOME=/opt/android-sdk
+        gradle assembleDebug --stacktrace
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
