@@ -20,18 +20,16 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Setup Gradle Wrapper
-      run: |
-        echo '#!/bin/sh' > gradlew
-        echo 'exec /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64/bin/java org.gradle.wrapper.GradleWrapperMain "$@"' >> gradlew
-        chmod +x gradlew
-        cat gradle/wrapper/gradle-wrapper.properties
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        api-level: 34
+        build-tools: '34.0.0'
+        ndk: '25.2.9519653'
+        cmake: '3.22.1'
 
     - name: Build Debug APK
-      run: |
-        ./gradlew assembleDebug --stacktrace --info
-      env:
-        ANDROID_HOME: /usr/local/lib/android/sdk
+      run: gradle assembleDebug --stacktrace --info
 
     - name: Check APK exists
       run: |
