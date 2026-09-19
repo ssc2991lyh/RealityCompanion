@@ -10,6 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: cirrusci/android-sdk:34
     steps:
     - uses: actions/checkout@v4
 
@@ -19,20 +20,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-      with:
-        api-level: 34
-        build-tools: '34.0.0'
-        cmake: '3.22.1'
-        ndk: '25.2.9519653'
-        verbose: true
-
-    - name: Fix gradlew and Build APK
+    - name: Fix gradlew
       run: |
         curl -s https://raw.githubusercontent.com/gradle/gradle/v8.2.0/gradle/wrapper/gradle-wrapper.sh -o gradlew
         chmod +x gradlew
-        ./gradlew assembleDebug --stacktrace --no-daemon
+
+    - name: Build Debug APK
+      run: ./gradlew assembleDebug --stacktrace --no-daemon
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
