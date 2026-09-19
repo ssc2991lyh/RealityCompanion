@@ -29,14 +29,12 @@ jobs:
         mv /tmp/cmdline-tools/cmdline-tools /opt/android-sdk/cmdline-tools/latest
         export ANDROID_HOME=/opt/android-sdk
         echo "ANDROID_HOME=/opt/android-sdk" >> $GITHUB_ENV
-        echo "PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_ENV
-        yes | sdkmanager --licenses > /dev/null
-        sdkmanager 'platforms;android-34' 'build-tools;34.0.0'
+        yes | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null
+        /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager 'platforms;android-34' 'build-tools;34.0.0'
 
     - name: Build Debug APK
       run: |
         export ANDROID_HOME=/opt/android-sdk
-        export PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin
         gradle assembleDebug --stacktrace --no-daemon --info
 
     - name: Upload APK
